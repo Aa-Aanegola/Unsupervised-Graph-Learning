@@ -59,9 +59,6 @@ flags.DEFINE_integer('eval_epochs', 250, 'Evaluate every eval_epochs.')
 flags.DEFINE_string('comment', '', 'Comment to add to the log file.')
 
 def main(argv):
-    # Log the datetime and the comment 
-    logger.info(f'{datetime.datetime.now()} {FLAGS.comment}')
-
     os.makedirs('./logs', exist_ok=True)
     logger = get_logger(f'./logs/{FLAGS.dataset}.log')
     params = {
@@ -72,6 +69,7 @@ def main(argv):
         'graph_encoder_layer': FLAGS.graph_encoder_layer,
         'drop_rate': (FLAGS.drop_edge_p_1, FLAGS.drop_feat_p_1, FLAGS.drop_edge_p_2, FLAGS.drop_feat_p_2 )
     }
+    logger.info(f'{datetime.datetime.now()} {FLAGS.comment}')
     logger.info(str(params))
 
     # use CUDA_VISIBLE_DEVICES to select gpu
