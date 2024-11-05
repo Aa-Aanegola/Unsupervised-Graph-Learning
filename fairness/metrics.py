@@ -9,11 +9,11 @@ def get_class_accuracy(y_test, y_pred, groups):
         group_y_test = y_test[group_indices]
         group_y_pred = y_pred[group_indices]
         accuracy = []
+        
         for i in np.unique(y_test):
-            if np.sum(group_y_test == i) == 0:
-                accuracy.append(-1)
-            accuracy.append(np.sum(group_y_pred == i) / np.sum(group_y_test == i))
+            accuracy.append(np.sum(group_y_pred[group_y_test == i] == i)/np.sum(group_y_test == i))
         class_accuracy.append(accuracy)
+
     return class_accuracy        
 
 def get_weights(y):
@@ -36,12 +36,9 @@ def get_fairness_metrics(y_true, y_pred, sensitive_features, labels):
     return {
         'demographic_parity_difference': demographic_parity_difference(y_true, y_pred, sensitive_features=sensitive_features),
         'demographic_parity_ratio': demographic_parity_ratio(y_true, y_pred, sensitive_features=sensitive_features),
-        'imparity': weighted_imparity(y_true, y_pred, labels, sensitive_features),
-   }
+        'imparity': weighted_imparity(y_true, y_pred, labels, sensitive_features)
+    }
 
-
-# given a list of test_splits and predictions for each of them, compute the average fairness metrics
-# fairness metrics are a dictionary
 def get_average_fairness_metrics(y_tests, y_preds, groups, y_all):
     fairness_metrics = []
     for y_test, y_pred, group in zip(y_tests, y_preds, groups):

@@ -14,6 +14,7 @@ from torch_scatter.composite import scatter_softmax
 import pickle as pkl
 from experiments import *
 from fairness.metrics import get_average_fairness_metrics
+import datetime
 
 FLAGS = flags.FLAGS
 flags.DEFINE_integer('model_seed', None, 'Random seed used for model initialization and training.')
@@ -54,7 +55,13 @@ flags.DEFINE_bool('weighted_edge_drop', False, 'Use the weighted edge drop')
 # Evaluation
 flags.DEFINE_integer('eval_epochs', 250, 'Evaluate every eval_epochs.')
 
+# Logging 
+flags.DEFINE_string('comment', '', 'Comment to add to the log file.')
+
 def main(argv):
+    # Log the datetime and the comment 
+    logger.info(f'{datetime.datetime.now()} {FLAGS.comment}')
+
     os.makedirs('./logs', exist_ok=True)
     logger = get_logger(f'./logs/{FLAGS.dataset}.log')
     params = {
