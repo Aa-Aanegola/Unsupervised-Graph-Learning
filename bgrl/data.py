@@ -25,7 +25,7 @@ def get_dataset(root, name, transform=NormalizeFeatures()):
     dataset_class, name = pyg_dataset_dict[name]
     dataset = dataset_class(root, name=name, transform=transform)
     data = dataset[0]
-    with open(f'{root}/{name}/degree_centrality.pkl', 'rb') as f:
+    with open(f'{root}/{name}/eigen_centrality.pkl', 'rb') as f:
         data.centrality = pkl.load(f)
     
     with open(f'{root}/{name}/group.pkl', 'rb') as f:

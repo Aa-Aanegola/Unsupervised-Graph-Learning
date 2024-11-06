@@ -36,7 +36,8 @@ def get_fairness_metrics(y_true, y_pred, sensitive_features, labels):
     return {
         'demographic_parity_difference': demographic_parity_difference(y_true, y_pred, sensitive_features=sensitive_features),
         'demographic_parity_ratio': demographic_parity_ratio(y_true, y_pred, sensitive_features=sensitive_features),
-        'imparity': weighted_imparity(y_true, y_pred, labels, sensitive_features)
+        'imparity': weighted_imparity(y_true, y_pred, labels, sensitive_features),
+        'class_accuracy': get_class_accuracy(y_true, y_pred, sensitive_features)
     }
 
 def get_average_fairness_metrics(y_tests, y_preds, groups, y_all):
@@ -46,6 +47,9 @@ def get_average_fairness_metrics(y_tests, y_preds, groups, y_all):
     
     average_metrics = {}
     for key in fairness_metrics[0].keys():
-        average_metrics[key] = np.mean([metric[key] for metric in fairness_metrics])
+        if key == 'class_accuracy':
+            average_metrics[key] = np.mean([metric[key] for metric in fairness_metrics], axis=0)
+        else:
+            average_metrics[key] = np.mean([metric[key] for metric in fairness_metrics])
     
     return average_metrics

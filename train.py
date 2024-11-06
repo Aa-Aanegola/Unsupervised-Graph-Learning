@@ -15,6 +15,7 @@ import pickle as pkl
 from experiments import *
 from fairness.metrics import get_average_fairness_metrics
 import datetime
+import wandb
 
 FLAGS = flags.FLAGS
 flags.DEFINE_integer('model_seed', None, 'Random seed used for model initialization and training.')
@@ -71,6 +72,9 @@ def main(argv):
     }
     logger.info(f'{datetime.datetime.now()} {FLAGS.comment}')
     logger.info(str(params))
+
+    wandb.init(project='Unsup-GNN', config=FLAGS.flag_values_dict())
+    wandb.run.name = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + ' ' + FLAGS.dataset + ' ' + FLAGS.comment
 
     # use CUDA_VISIBLE_DEVICES to select gpu
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
@@ -154,8 +158,8 @@ def main(argv):
             loss_structure = FLAGS.alpha*F.mse_loss(c, centrality)
             loss += loss_structure
 
-        print(f'E:{step} Loss:{loss.item():.4f} SELF:{loss_self.item():.4f} NEIG:{loss_neig.item():.4f}, STRUC:{loss_structure.item():.4f}')
-        
+        wandb.log({'loss': loss.item(), 'loss_self': loss_self.item(), 'loss_neig': loss_neig.item(), 'loss_structure': loss_structure.item()})
+
         loss.backward()
 
         # update online network
@@ -187,20 +191,28 @@ def main(argv):
         )
         logger.info(f'Performance Metrics {avg_report}')
         logger.info(f'Fairness {fairness_metrics}')
+        wandb.log(avg_report)
+        wandb.log({'accuracy': np.mean(scores)*100, 'accuracy_std': np.std(scores)*100})
+        class_accuracy = fairness_metrics['class_accuracy'].tolist()
+        table = wandb.Table(data=class_accuracy, columns=[f"Class {i}" for i in range(len(class_accuracy[0]))])
+        wandb.log(fairness_metrics)
+        wandb.log({'class_accuracy': table})
+        
 
         # node clustering
         clusterings = node_clustering(representations, labels)
         logger.info(clusterings)
+        wandb.log(clusterings)
 
         # node similarity search
         similarities = similarity_search(representations, labels)
         logger.info(similarities)
+        wandb.log(similarities)
 
     for epoch in range(1, FLAGS.epochs + 1):
         train(epoch-1)
         if epoch % FLAGS.eval_epochs == 0:
             eval(epoch)
-
 
 if __name__ == "__main__":
     print('PyTorch version: %s' % torch.__version__)

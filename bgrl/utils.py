@@ -50,13 +50,13 @@ def similarity_search(Z: torch.FloatTensor, Y: torch.LongTensor):
     S.fill_diagonal_(-2.)
     S_ = torch.argsort(S, dim=1)
     Y_ = Y.repeat(n_nodes, 1)
-    s = ""
+    s = {}
     for N in [4, 8, 16, 5, 10, 20]:
         indices = S_[:, -N:]
         selected_label = Y_[torch.arange(n_nodes).repeat_interleave(N), indices.ravel()].view(n_nodes, N)
         original_label = Y.repeat_interleave(N).view(n_nodes, N)
         res = torch.mean(torch.sum((selected_label == original_label).float(), dim=1) / N) * 100
-        s = s + f"Sim@{N}={res:.2f} "
+        s[f"Sim@{N}"] = res
 
     return s
 
@@ -84,6 +84,6 @@ def node_clustering(Z, Y):
 
     NMI = np.array(NMI_list)
     Homo = np.array(h_list)
-    clusterings = f'NMI={np.mean(NMI)*100:.2f}+-{np.std(NMI)*100:.2f} Homo={np.mean(Homo)*100:.2f}+-{np.std(Homo)*100:.2f}'
+    clusterings = {'NMI': np.mean(NMI)*100, 'NMI_std': np.std(NMI)*100, 'Homo': np.mean(Homo)*100, 'Homo_std': np.std(Homo)*100}
     return clusterings
     
