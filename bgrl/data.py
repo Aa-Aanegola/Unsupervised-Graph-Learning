@@ -15,7 +15,7 @@ def get_dataset(root, name, transform=NormalizeFeatures()):
         'amazon-computers': (datasets.Amazon, 'Computers'),
         'amazon-photos': (datasets.Amazon, 'Photo'),
         'cora': (datasets.Planetoid, 'Cora'),
-        'citeseer': (datasets.Planetoid, 'Citeseer'),
+        'citeseer': (datasets.Planetoid, 'CiteSeer'),
         'twitch': (datasets.Twitch, 'Twitch'),
         'ppi': (datasets.PPI, 'PPI')
     }
