@@ -8,7 +8,7 @@ from torch_geometric.utils import to_undirected
 import pickle as pkl
 
 
-def get_dataset(root, name, transform=NormalizeFeatures()):
+def get_dataset(root, name, centrality_path, transform=NormalizeFeatures()):
     pyg_dataset_dict = {
         'coauthor-cs': (datasets.Coauthor, 'CS'),
         'coauthor-physics': (datasets.Coauthor, 'physics'),
@@ -25,7 +25,7 @@ def get_dataset(root, name, transform=NormalizeFeatures()):
     dataset_class, name = pyg_dataset_dict[name]
     dataset = dataset_class(root, name=name, transform=transform)
     data = dataset[0]
-    with open(f'{root}/{name}/eigen_centrality.pkl', 'rb') as f:
+    with open(f'{root}/{name}/{centrality_path}', 'rb') as f:
         data.centrality = pkl.load(f)
     
     with open(f'{root}/{name}/group.pkl', 'rb') as f:

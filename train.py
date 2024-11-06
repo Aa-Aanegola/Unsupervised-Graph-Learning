@@ -28,6 +28,7 @@ flags.DEFINE_enum('dataset', 'amazon-computers',
                   'Which graph dataset to use.')
 flags.DEFINE_string('dataset_dir', './data', 'Where the dataset resides.')
 flags.DEFINE_integer('num_classes', 2, 'Number of classes in the dataset.')
+flags.DEFINE_string('centrality_path', 'degree_centrality.pkl', 'Path to centrality file')
 
 # Architecture.
 flags.DEFINE_multi_integer('graph_encoder_layer', None, 'Conv layer sizes.')
@@ -87,7 +88,7 @@ def main(argv):
 
     # load data
     if FLAGS.dataset != 'wiki-cs':
-        dataset = get_dataset(FLAGS.dataset_dir, FLAGS.dataset)
+        dataset = get_dataset(FLAGS.dataset_dir, FLAGS.dataset, FLAGS.centrality_path)
         num_eval_splits = FLAGS.num_eval_splits
     else:
         dataset, train_masks, val_masks, test_masks = get_wiki_cs(FLAGS.dataset_dir)
