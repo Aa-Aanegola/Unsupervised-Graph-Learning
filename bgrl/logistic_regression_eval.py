@@ -9,7 +9,7 @@ from copy import deepcopy
 def average_report(reports):
     avg_report = {}
     for key in reports[0].keys():
-        avg_report[key] = np.mean([report[key] for report in reports])
+        avg_report[key] = 100*np.mean([report[key] for report in reports])
     return avg_report
 
 
