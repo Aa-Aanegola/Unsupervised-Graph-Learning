@@ -1,4 +1,6 @@
 from typing import Optional, Tuple
+import sys
+sys.path.append('..')
 
 import torch
 from torch import Tensor
@@ -10,6 +12,7 @@ from torch_geometric.typing import OptTensor
 from torch_geometric.utils import cumsum, degree, sort_edge_index, subgraph
 from torch_geometric.utils.num_nodes import maybe_num_nodes
 from torch_geometric.loader import NeighborSampler
+from constants import *
 
 def get_two_hop_edges(edge_index: Tensor, num_nodes: int) -> Tensor:
     sampler = NeighborSampler(edge_index, sizes=[1, 1])
@@ -29,7 +32,7 @@ def two_hop_edge_dropout(edge_index: Tensor, num_nodes: int, p: float = 0.5,
         edge_mask = edge_index.new_ones(edge_index.size(1), dtype=torch.bool)
         return edge_index, edge_mask
     
-    two_hop_edges = get_two_hop_edges(edge_index, num_nodes)
+    two_hop_edges = get_two_hop_edges(edge_index, num_nodes).to(device)
     edge_index = torch.cat([edge_index, two_hop_edges.T], dim=-1)
 
 
@@ -60,7 +63,7 @@ def two_hop_centrality_weighted(edge_index: Tensor,
         edge_mask = edge_index.new_ones(edge_index.size(1), dtype=torch.bool)
         return edge_index, edge_mask
     
-    two_hop_edges = get_two_hop_edges(edge_index, num_nodes)
+    two_hop_edges = get_two_hop_edges(edge_index, num_nodes).to(device)
 
     edge_index = torch.cat([edge_index, two_hop_edges.T], dim=-1)
 

@@ -16,6 +16,7 @@ from experiments import *
 from fairness.metrics import get_average_fairness_metrics
 import datetime
 import wandb
+from constants import *
 
 FLAGS = flags.FLAGS
 flags.DEFINE_integer('model_seed', None, 'Random seed used for model initialization and training.')
@@ -84,7 +85,6 @@ def main(argv):
     class_accuracy_table = wandb.Table(columns=columns)
 
     # use CUDA_VISIBLE_DEVICES to select gpu
-    device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     print('Using {} for training.'.format(device))
 
     # set random seed
