@@ -210,7 +210,6 @@ def main(argv):
         for cls in range(FLAGS.num_classes):
             class_acc_row.extend([group_0_accuracies[cls], group_1_accuracies[cls], accuracy_diffs[cls]])
         class_accuracy_table.add_data(*class_acc_row)
-        wandb.log({"class_accuracy": class_accuracy_table}, step=epoch, commit=False)
 
         # node clustering
         clusterings = node_clustering(representations, labels)
@@ -227,6 +226,8 @@ def main(argv):
         if epoch % FLAGS.eval_epochs == 0:
             eval(epoch-1)
         wandb.log({'epoch': epoch-1}, commit=True)
+    # log table
+    wandb.log({'class_accuracy_table': class_accuracy_table}, step=FLAGS.epochs-1)
 
 if __name__ == "__main__":
     print('PyTorch version: %s' % torch.__version__)
