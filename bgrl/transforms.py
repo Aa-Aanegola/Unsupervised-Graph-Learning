@@ -2,6 +2,8 @@ import copy
 import sys
 sys.path.append('..')
 from augmentations.weighted_edge_drop import *
+from augmentations.edge_add import *
+from constants import *
 
 import torch
 from torch_geometric.utils.dropout import dropout_edge
@@ -47,7 +49,7 @@ class DropEdges:
 
 # use the weighted_edge_drop
 class DropEdgesWeighted:
-    r"""Drops edges with probability p."""
+    r"""Drops edges with probability p after weighting by centrality."""
     def __init__(self, p, force_undirected=False):
         assert 0. < p < 1., 'Dropout probability has to be between 0 and 1, but got %.2f' % p
 
@@ -68,19 +70,60 @@ class DropEdgesWeighted:
     def __repr__(self):
         return '{}(p={}, force_undirected={})'.format(self.__class__.__name__, self.p, self.force_undirected)
 
+class DropEdgesExtended:
+    r"""Drops edges with probability p after adding two-hop edges to the graph."""
+    def __init__(self, p, force_undirected=False):
+        assert 0. < p < 1., 'Dropout probability has to be between 0 and 1, but got %.2f' % p
+
+        self.p = p
+        self.force_undirected = force_undirected
+
+    def __call__(self, data):
+        edge_index = data.edge_index
+        edge_attr = data.edge_attr if 'edge_attr' in data else None
+
+        edge_index, edge_attr = two_hop_edge_dropout(edge_index, data.num_nodes, p=self.p, force_undirected=self.force_undirected)
+
+        data.edge_index = edge_index
+        if edge_attr is not None:
+            data.edge_attr = edge_attr
+        return data
+
+class DropEdgesWeightedExtended:
+    r"""Drops edges with probability p after weighting by centrality and adding two-hop edges to the graph."""
+    def __init__(self, p, force_undirected=False):
+        assert 0. < p < 1., 'Dropout probability has to be between 0 and 1, but got %.2f' % p
+
+        self.p = p
+        self.force_undirected = force_undirected
+
+    def __call__(self, data):
+        edge_index = data.edge_index
+        edge_attr = data.edge_attr if 'edge_attr' in data else None
+
+        edge_index, edge_attr = two_hop_centrality_weighted(edge_index, data.num_nodes, data.centrality, p=self.p, force_undirected=self.force_undirected)
+
+        data.edge_index = edge_index
+        if edge_attr is not None:
+            data.edge_attr = edge_attr
+        return data
+
 def get_graph_drop_transform(drop_edge_p, drop_feat_p, FLAGS):
     transforms = list()
 
     # make copy of graph
     transforms.append(copy.deepcopy)
 
-    if FLAGS.weighted_edge_drop:
-        if drop_edge_p > 0.:
-            transforms.append(DropEdgesWeighted(drop_edge_p))
+    if FLAGS.transform_type == TransformType.DROP_EDGE.value:
+        transforms.append(DropEdges(drop_edge_p))
+    elif FLAGS.transform_type == TransformType.DROP_EDGE_WEIGHTED.value:
+        transforms.append(DropEdgesWeighted(drop_edge_p))
+    elif FLAGS.transform_type == TransformType.DROP_EDGE_EXTENDED.value:
+        transforms.append(DropEdgesExtended(drop_edge_p))
+    elif FLAGS.transform_type == TransformType.DROP_EDGE_WEIGHTED_EXTENDED.value:
+        transforms.append(DropEdgesWeightedExtended(drop_edge_p))
     else:
-        # drop edges
-        if drop_edge_p > 0.:
-            transforms.append(DropEdges(drop_edge_p))
+        raise ValueError('Invalid transform type %s' % FLAGS.transform_type)
 
     # drop features
     if drop_feat_p > 0.:

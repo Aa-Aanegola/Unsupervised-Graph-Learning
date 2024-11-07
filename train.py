@@ -52,7 +52,7 @@ flags.DEFINE_float('drop_edge_p_1', 0., 'Probability of edge dropout 1.')
 flags.DEFINE_float('drop_feat_p_1', 0., 'Probability of node feature dropout 1.')
 flags.DEFINE_float('drop_edge_p_2', 0., 'Probability of edge dropout 2.')
 flags.DEFINE_float('drop_feat_p_2', 0., 'Probability of node feature dropout 2.')
-flags.DEFINE_bool('weighted_edge_drop', False, 'Use the weighted edge drop')
+flags.DEFINE_string('transform_type', 'drop_edge', 'Type of transformation to apply to the graph.')
 
 # Evaluation
 flags.DEFINE_integer('eval_epochs', 250, 'Evaluate every eval_epochs.')
@@ -75,7 +75,13 @@ def main(argv):
     logger.info(str(params))
 
     wandb.init(project='Unsup-GNN', config=FLAGS.flag_values_dict())
-    wandb.run.name = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + ' ' + FLAGS.dataset + ' ' + FLAGS.comment
+    wandb.run.name = datetime.datetime.now().strftime("%Y%m%d-%H%M") + ' ' + FLAGS.dataset + ' ' + FLAGS.transform_type
+    
+    # wandb class accuracy table
+    columns = ["Epoch"]
+    for cls in range(FLAGS.num_classes):
+        columns.extend([f"Group 0 Class {cls} Accuracy", f"Group 1 Class {cls} Accuracy", f"Class {cls} Accuracy Difference"])
+    class_accuracy_table = wandb.Table(columns=columns)
 
     # use CUDA_VISIBLE_DEVICES to select gpu
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
@@ -159,7 +165,8 @@ def main(argv):
             loss_structure = FLAGS.alpha*F.mse_loss(c, centrality)
             loss += loss_structure
 
-        wandb.log({'loss': loss.item(), 'loss_self': loss_self.item(), 'loss_neig': loss_neig.item(), 'loss_structure': loss_structure.item()})
+        logger.info(f'Epoch: {epoch}, Loss: {loss.item()} Loss Self: {loss_self.item()} Loss Neig: {loss_neig.item()} Loss Structure: {loss_structure.item()}')
+        wandb.log({'loss': loss.item(), 'loss_self': loss_self.item(), 'loss_neig': loss_neig.item(), 'loss_structure': loss_structure.item()}, commit=False)
 
         loss.backward()
 
@@ -192,28 +199,34 @@ def main(argv):
         )
         logger.info(f'Performance Metrics {avg_report}')
         logger.info(f'Fairness {fairness_metrics}')
-        wandb.log(avg_report)
-        wandb.log({'accuracy': np.mean(scores)*100, 'accuracy_std': np.std(scores)*100})
-        class_accuracy = fairness_metrics['class_accuracy'].tolist()
-        table = wandb.Table(data=class_accuracy, columns=[f"Class {i}" for i in range(len(class_accuracy[0]))])
-        wandb.log(fairness_metrics)
-        wandb.log({'class_accuracy': table})
-        
+        wandb.log(avg_report, commit=False)
+        wandb.log({'accuracy': np.mean(scores)*100, 'accuracy_std': np.std(scores)*100}, commit=False)
+        wandb.log(fairness_metrics, commit=False)
+
+        group_0_accuracies = fairness_metrics['class_accuracy'][0]  
+        group_1_accuracies = fairness_metrics['class_accuracy'][1]
+        accuracy_diffs = [g1 - g0 for g0, g1 in zip(group_0_accuracies, group_1_accuracies)]
+        class_acc_row = [epoch]
+        for cls in range(FLAGS.num_classes):
+            class_acc_row.extend([group_0_accuracies[cls], group_1_accuracies[cls], accuracy_diffs[cls]])
+        class_accuracy_table.add_data(*class_acc_row)
+        wandb.log({"class_accuracy": class_accuracy_table}, step=epoch, commit=False)
 
         # node clustering
         clusterings = node_clustering(representations, labels)
         logger.info(clusterings)
-        wandb.log(clusterings)
+        wandb.log(clusterings, commit=False)
 
         # node similarity search
         similarities = similarity_search(representations, labels)
         logger.info(similarities)
-        wandb.log(similarities)
+        wandb.log(similarities, commit=False)
 
     for epoch in range(1, FLAGS.epochs + 1):
         train(epoch-1)
         if epoch % FLAGS.eval_epochs == 0:
-            eval(epoch)
+            eval(epoch-1)
+        wandb.log({'epoch': epoch-1}, commit=True)
 
 if __name__ == "__main__":
     print('PyTorch version: %s' % torch.__version__)
