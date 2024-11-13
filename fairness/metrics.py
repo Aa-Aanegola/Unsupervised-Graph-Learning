@@ -51,5 +51,6 @@ def get_average_fairness_metrics(y_tests, y_preds, groups, y_all):
             average_metrics[key] = np.mean([metric[key] for metric in fairness_metrics], axis=0)
         else:
             average_metrics[key] = np.mean([metric[key] for metric in fairness_metrics])
+            average_metrics[key+'_std'] = np.std([metric[key] for metric in fairness_metrics])
     
     return average_metrics

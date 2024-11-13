@@ -22,11 +22,11 @@ def centrality_weighted(edge_index: Tensor,
 
     row, col = edge_index
 
-    score = (centrality[row] + centrality[col] / 2)
+    score = (centrality[row] + centrality[col] / 2) + 1
     score = score / torch.sum(score)
     idx = torch.multinomial(score, int(score.size(0) * p), replacement=False)
-    edge_mask = torch.zeros_like(score, dtype=torch.bool)
-    edge_mask[idx] = True
+    edge_mask = torch.ones_like(score, dtype=torch.bool)
+    edge_mask[idx] = False
 
     if force_undirected:
         edge_mask[row > col] = False

@@ -1,20 +1,29 @@
-# Array of job names (tmux session names) and commands
+#!/bin/bash
+
+# Array of job names (dataset names) and configurations
 declare -A jobs=(
-    ["cora"]="./run.sh cora"
-    ["citeseer"]="./run.sh citeseer"
-    ["photos"]="./run.sh amazon-photos"
-    ["computers"]="./run.sh amazon-computers"
-    ["coauthor-cs"]="./run.sh coauthor-cs"
-    ["coauthor-physics"]="./run.sh coauthor-physics"
+    ["cora"]="cora"
+    ["citeseer"]="citeseer"
+    ["photos"]="amazon-photos"
+    ["computers"]="amazon-computers"
+    ["twitch-en"]="twitch-en"
+    ["twitch-de"]="twitch-de"
 )
 
-for job in "${!jobs[@]}"; do
-    # Create a new tmux session for each job
-    tmux new-session -d -s "$job" # '-d' creates the session detached
-    
-    # activate the graph environment on the session
-    tmux send-keys -t "$job" "conda activate graph" C-m
+# Array of centrality types
+centralities=("degree_centrality.pkl" "eigen_centrality.pkl" "betweenness_centrality.pkl")
 
-    # Send the job command to the tmux session and run it in the background
-    tmux send-keys -t "$job" "${jobs[$job]} &" C-m  # '&' to run in background, C-m to simulate Enter key
+for job in "${!jobs[@]}"; do
+    dataset="${jobs[$job]}"
+    echo "Running configurations for dataset: $dataset"
+    
+    for centrality in "${centralities[@]}"; do
+        centrality_path="$centrality"
+        
+        # Run all configurations for the current dataset and centrality type
+        python3 train.py --flagfile=/home/aa-aanegola/Unsupervised-Graph-Learning/config/$dataset.cfg --transform_type=drop_edge --centrality_path=$centrality_path
+        python3 train.py --flagfile=/home/aa-aanegola/Unsupervised-Graph-Learning/config/$dataset.cfg --transform_type=drop_edge_weighted --centrality_path=$centrality_path
+        python3 train.py --flagfile=/home/aa-aanegola/Unsupervised-Graph-Learning/config/$dataset.cfg --transform_type=drop_edge_extended --centrality_path=$centrality_path
+        python3 train.py --flagfile=/home/aa-aanegola/Unsupervised-Graph-Learning/config/$dataset.cfg --transform_type=drop_edge_weighted_extended --centrality_path=$centrality_path
+    done
 done

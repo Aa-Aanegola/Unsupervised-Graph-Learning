@@ -1,7 +1,7 @@
 import warnings
 import argparse
 import json
-from torch_geometric.datasets import Amazon, Planetoid
+from torch_geometric.datasets import Amazon, Planetoid, Coauthor, Twitch
 
 import networkx as nx
 from networkx.algorithms.centrality import (
@@ -13,9 +13,9 @@ from torch_geometric.utils import to_networkx
 import torch
 import pickle as pkl
 
-dset = 'Computers'
+dset = 'DE'
 
-dataset = Amazon(root='./data/', name=dset)
+dataset = Twitch(root='./data', name=dset)
 data = dataset[0]
 
 def log_normalize(d):

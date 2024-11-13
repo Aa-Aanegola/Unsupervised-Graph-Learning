@@ -25,13 +25,13 @@ flags.DEFINE_integer('num_eval_splits', 20, 'Number of different train/test spli
 
 # Dataset.
 flags.DEFINE_enum('dataset', 'amazon-computers',
-                  ['amazon-computers', 'amazon-photos', 'coauthor-cs', 'coauthor-physics', 'wiki-cs', 'cora', 'citeseer', 'twitch', 'ppi'],
+                  ['amazon-computers', 'amazon-photos', 'coauthor-cs', 'coauthor-physics', 'wiki-cs', 'cora', 'citeseer', 'twitch-en', 'twitch-de'],
                   'Which graph dataset to use.')
 flags.DEFINE_string('dataset_dir', './data', 'Where the dataset resides.')
 flags.DEFINE_integer('num_classes', 2, 'Number of classes in the dataset.')
 flags.DEFINE_string('centrality_path', 'degree_centrality.pkl', 'Path to centrality file')
 
-# Architecture.
+# Architecture. 
 flags.DEFINE_multi_integer('graph_encoder_layer', None, 'Conv layer sizes.')
 flags.DEFINE_integer('predictor_hidden_size', 512, 'Hidden size of projector.')
 
@@ -76,7 +76,7 @@ def main(argv):
     logger.info(str(params))
 
     wandb.init(project='Unsup-GNN', config=FLAGS.flag_values_dict())
-    wandb.run.name = datetime.datetime.now().strftime("%Y%m%d-%H%M") + ' ' + FLAGS.dataset + ' ' + FLAGS.transform_type
+    wandb.run.name = datetime.datetime.now().strftime("%Y%m%d") + ' ' + FLAGS.dataset + ' ' + FLAGS.transform_type + ' ' + FLAGS.centrality_path.split('_')[0] + ' BLNN'
     
     # wandb class accuracy table
     columns = ["Epoch"]
@@ -182,25 +182,21 @@ def main(argv):
         representations, labels = compute_representations(tmp_encoder, dataset, device)
 
         # node classification
-        if FLAGS.dataset != 'wiki-cs':
-            scores, y_preds, y_tests, groups, avg_report = fit_logistic_regression(representations.cpu().numpy(), labels.cpu().numpy(),
-                                                                       data.group.cpu().numpy(),
-                                             data_random_seed=FLAGS.data_seed, repeat=FLAGS.num_eval_splits)
-        else:
-            scores, y_pred_all, [] = fit_logistic_regression_preset_splits(representations.cpu().numpy(), labels.cpu().numpy(), train_masks, val_masks, test_masks)
-
+        y_preds, y_tests, groups, avg_report = fit_logistic_regression(representations.cpu().numpy(), labels.cpu().numpy(),
+                                                                    data.group.cpu().numpy(),
+                                            data_random_seed=FLAGS.data_seed, repeat=FLAGS.num_eval_splits)
+    
         # TODO: add imparity stuff
         fairness_metrics = get_average_fairness_metrics(y_tests, y_preds, groups, labels.cpu().numpy())
 
         logger.info(
                     "Epoch: {:04d} | Accuracy: {:.2f}+-{:.2f}".format(
-                        epoch, np.mean(scores)*100, np.std(scores)*100
+                        epoch, avg_report['accuracy']*100, avg_report['accuracy_std']*100
                     )
         )
         logger.info(f'Performance Metrics {avg_report}')
         logger.info(f'Fairness {fairness_metrics}')
         wandb.log(avg_report, commit=False)
-        wandb.log({'accuracy': np.mean(scores)*100, 'accuracy_std': np.std(scores)*100}, commit=False)
         wandb.log(fairness_metrics, commit=False)
 
         group_0_accuracies = fairness_metrics['class_accuracy'][0]  
@@ -232,3 +228,4 @@ def main(argv):
 if __name__ == "__main__":
     print('PyTorch version: %s' % torch.__version__)
     app.run(main)
+    wandb.finish()

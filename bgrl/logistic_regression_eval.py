@@ -10,6 +10,7 @@ def average_report(reports):
     avg_report = {}
     for key in reports[0].keys():
         avg_report[key] = 100*np.mean([report[key] for report in reports])
+        avg_report[key+'_std'] = 100*np.std([report[key] for report in reports])
     return avg_report
 
 
@@ -62,7 +63,7 @@ def fit_logistic_regression(X, y, group, data_random_seed=1, repeat=1):
 
     avg_report = average_report(reports)
 
-    return accuracies, y_preds, y_tests, groups, avg_report
+    return y_preds, y_tests, groups, avg_report
 
 
 def fit_logistic_regression_preset_splits(X, y, train_masks, val_masks, test_mask):
