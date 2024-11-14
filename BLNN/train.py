@@ -21,6 +21,7 @@ from common.utils import get_logger, set_random_seeds, node_clustering, similari
 from common.constants import device
 from common.logistic_regression_eval import fit_logistic_regression
 from common.data import get_dataset
+from common.transforms import get_graph_drop_transform
 
 FLAGS = flags.FLAGS
 flags.DEFINE_integer('model_seed', None, 'Random seed used for model initialization and training.')
