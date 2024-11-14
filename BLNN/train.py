@@ -50,7 +50,7 @@ flags.DEFINE_bool('structure_learning', False, 'Add an auxiliary task to learn c
 flags.DEFINE_float('alpha', 0.001, 'Weight ratio for structure learning loss')
 flags.DEFINE_integer('centrality_hidden_size', 64, 'Hidden layer size for centrality predictor MLP head')
 flags.DEFINE_bool('use_bgrl', True, 'Use BGRL loss function')
-flags.DEFINE_bool('use_blnn', True, 'Use BLNN loss function')
+flags.DEFINE_bool('use_blnn', False, 'Use BLNN loss function')
 
 # Augmentations.
 flags.DEFINE_float('drop_edge_p_1', 0., 'Probability of edge dropout 1.')
@@ -80,7 +80,7 @@ def main(argv):
     logger.info(str(params))
 
     wandb.init(project='Unsup-GNN', config=FLAGS.flag_values_dict(), mode='disabled')
-    wandb.run.name = datetime.datetime.now().strftime("%Y%m%d") + ' ' + FLAGS.dataset + ' ' + FLAGS.transform_type + ' ' + FLAGS.centrality_path.split('_')[0] + ' BLNN'
+    wandb.run.name = datetime.datetime.now().strftime("%Y%m%d") + ' ' + FLAGS.dataset + ' ' + FLAGS.transform_type + ' ' + FLAGS.centrality_path.split('_')[0] + ' BGRL'
     
     # wandb class accuracy table
     columns = ["Epoch"]
