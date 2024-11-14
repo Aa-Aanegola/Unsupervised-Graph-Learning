@@ -1,9 +1,8 @@
 import copy
 import sys
-sys.path.append('..')
-from augmentations.weighted_edge_drop import *
-from augmentations.edge_add import *
-from constants import *
+sys.path.append('../..')
+from augmentations import *
+from common.constants import TransformType
 
 import torch
 from torch_geometric.utils.dropout import dropout_edge

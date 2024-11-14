@@ -1,5 +1,6 @@
 import sys
 sys.path.append('../')
+sys.path.append('../../')
 import os
 import copy
 import torch
@@ -12,11 +13,14 @@ import torch.nn.functional as F
 from torch.nn.functional import cosine_similarity
 from torch_scatter.composite import scatter_softmax
 import pickle as pkl
-from experiments import *
+from bgrl.experiments import *
 from fairness.metrics import get_average_fairness_metrics
 import datetime
 import wandb
-from constants import *
+from common.utils import get_logger, set_random_seeds, node_clustering, similarity_search
+from common.constants import device
+from common.logistic_regression_eval import fit_logistic_regression
+from common.data import get_dataset
 
 FLAGS = flags.FLAGS
 flags.DEFINE_integer('model_seed', None, 'Random seed used for model initialization and training.')
@@ -27,7 +31,7 @@ flags.DEFINE_integer('num_eval_splits', 20, 'Number of different train/test spli
 flags.DEFINE_enum('dataset', 'amazon-computers',
                   ['amazon-computers', 'amazon-photos', 'coauthor-cs', 'coauthor-physics', 'wiki-cs', 'cora', 'citeseer', 'twitch-en', 'twitch-de'],
                   'Which graph dataset to use.')
-flags.DEFINE_string('dataset_dir', './data', 'Where the dataset resides.')
+flags.DEFINE_string('dataset_dir', '../data', 'Where the dataset resides.')
 flags.DEFINE_integer('num_classes', 2, 'Number of classes in the dataset.')
 flags.DEFINE_string('centrality_path', 'degree_centrality.pkl', 'Path to centrality file')
 
@@ -75,7 +79,7 @@ def main(argv):
     logger.info(f'{datetime.datetime.now()} {FLAGS.comment}')
     logger.info(str(params))
 
-    wandb.init(project='Unsup-GNN', config=FLAGS.flag_values_dict())
+    wandb.init(project='Unsup-GNN', config=FLAGS.flag_values_dict(), mode='disabled')
     wandb.run.name = datetime.datetime.now().strftime("%Y%m%d") + ' ' + FLAGS.dataset + ' ' + FLAGS.transform_type + ' ' + FLAGS.centrality_path.split('_')[0] + ' BLNN'
     
     # wandb class accuracy table

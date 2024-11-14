@@ -12,7 +12,7 @@ from torch_geometric.typing import OptTensor
 from torch_geometric.utils import cumsum, degree, sort_edge_index, subgraph
 from torch_geometric.utils.num_nodes import maybe_num_nodes
 from torch_geometric.loader import NeighborSampler
-from constants import *
+from common.constants import *
 
 def get_two_hop_edges(edge_index: Tensor, num_nodes: int) -> Tensor:
     sampler = NeighborSampler(edge_index, sizes=[1, 1])
