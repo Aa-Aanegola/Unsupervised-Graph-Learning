@@ -19,9 +19,9 @@ for job in "${!jobs[@]}"; do
         centrality_path="$centrality"
         
         # Run all configurations for the current dataset and centrality type
-        python3 train.py --flagfile=/home/aa-aanegola/Unsupervised-Graph-Learning/config/$dataset.cfg --transform_type=drop_edge --centrality_path=$centrality_path
-        python3 train.py --flagfile=/home/aa-aanegola/Unsupervised-Graph-Learning/config/$dataset.cfg --transform_type=drop_edge_weighted --centrality_path=$centrality_path
-        python3 train.py --flagfile=/home/aa-aanegola/Unsupervised-Graph-Learning/config/$dataset.cfg --transform_type=drop_edge_extended --centrality_path=$centrality_path
-        python3 train.py --flagfile=/home/aa-aanegola/Unsupervised-Graph-Learning/config/$dataset.cfg --transform_type=drop_edge_weighted_extended --centrality_path=$centrality_path
+        python3 train.py --flagfile=/home/aa-aanegola/Unsupervised-Graph-Learning/GRACE/config/$dataset.cfg --transform_type=drop_edge --centrality_path=$centrality_path
+        python3 train.py --flagfile=/home/aa-aanegola/Unsupervised-Graph-Learning/GRACE/config/$dataset.cfg --transform_type=drop_edge_weighted --centrality_path=$centrality_path
+        python3 train.py --flagfile=/home/aa-aanegola/Unsupervised-Graph-Learning/GRACE/config/$dataset.cfg --transform_type=drop_edge_extended --centrality_path=$centrality_path
+        python3 train.py --flagfile=/home/aa-aanegola/Unsupervised-Graph-Learning/GRACE/config/$dataset.cfg --transform_type=drop_edge_weighted_extended --centrality_path=$centrality_path
     done
 done

@@ -75,7 +75,7 @@ def main(argv):
     logger.info(f'{datetime.datetime.now()} {FLAGS.comment}')
     logger.info(str(params))
 
-    wandb.init(project='Unsup-GNN', config=FLAGS.flag_values_dict(), mode='disabled')
+    wandb.init(project='Unsup-GNN', config=FLAGS.flag_values_dict())
     wandb.run.name = datetime.datetime.now().strftime("%Y%m%d") + ' ' + FLAGS.dataset + ' ' + FLAGS.transform_type + ' ' + FLAGS.centrality_path.split('_')[0] + ' GRACE'
     
     # wandb class accuracy table
