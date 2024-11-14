@@ -80,7 +80,7 @@ def main(argv):
     logger.info(f'{datetime.datetime.now()} {FLAGS.comment}')
     logger.info(str(params))
 
-    wandb.init(project='Unsup-GNN', config=FLAGS.flag_values_dict(), mode='disabled')
+    wandb.init(project='Unsup-GNN', config=FLAGS.flag_values_dict())
     wandb.run.name = datetime.datetime.now().strftime("%Y%m%d") + ' ' + FLAGS.dataset + ' ' + FLAGS.transform_type + ' ' + FLAGS.centrality_path.split('_')[0] + ' BGRL'
     
     # wandb class accuracy table
@@ -98,12 +98,8 @@ def main(argv):
         set_random_seeds(random_seed=FLAGS.model_seed)
 
     # load data
-    if FLAGS.dataset != 'wiki-cs':
-        dataset = get_dataset(FLAGS.dataset_dir, FLAGS.dataset, FLAGS.centrality_path)
-        num_eval_splits = FLAGS.num_eval_splits
-    else:
-        dataset, train_masks, val_masks, test_masks = get_wiki_cs(FLAGS.dataset_dir)
-        num_eval_splits = train_masks.shape[1]
+    dataset = get_dataset(FLAGS.dataset_dir, FLAGS.dataset, FLAGS.centrality_path)
+    num_eval_splits = FLAGS.num_eval_splits
 
     data = dataset[0]  # all dataset include one graph
     data.num_classes = FLAGS.num_classes
