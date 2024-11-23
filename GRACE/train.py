@@ -137,8 +137,8 @@ def main(argv):
         labels = data.y
 
         # node classification
-        y_preds, y_tests, groups, avg_report = fit_logistic_regression(representations.cpu().numpy(), labels.cpu().numpy(),
-                                                                    data.group.cpu().numpy(),
+        y_preds, y_tests, groups, avg_report = fit_logistic_regression(representations.cpu().detach().numpy(), labels.cpu().detach().numpy(),
+                                                                    data.group.cpu().detach().numpy(),
                                             data_random_seed=FLAGS.data_seed, repeat=FLAGS.num_eval_splits)
     
         # TODO: add imparity stuff
