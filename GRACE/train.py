@@ -57,7 +57,7 @@ flags.DEFINE_float('drop_feat_p_2', 0., 'Probability of node feature dropout 2.'
 flags.DEFINE_string('transform_type', 'drop_edge', 'Type of transformation to apply to the graph.')
 
 # Evaluation
-flags.DEFINE_integer('eval_epochs', 250, 'Evaluate every eval_epochs.')
+flags.DEFINE_integer('eval_epochs', 100, 'Evaluate every eval_epochs.')
 
 # Logging 
 flags.DEFINE_string('comment', '', 'Comment to add to the log file.')

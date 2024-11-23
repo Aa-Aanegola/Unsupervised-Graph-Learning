@@ -9,7 +9,7 @@ declare -A jobs=(
 )
 
 # Array of centrality types
-centralities=("degree_centrality.pkl" "eigen_centrality.pkl" "betweenness_centrality.pkl")
+centralities=("degree_centrality.pkl" "eigen_centrality.pkl")
 
 for job in "${!jobs[@]}"; do
     dataset="${jobs[$job]}"
