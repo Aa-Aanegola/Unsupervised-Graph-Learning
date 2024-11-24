@@ -18,10 +18,10 @@ def sample_two_hop_edges(edge_index: Tensor, num_nodes: int) -> Tensor:
     sampler = NeighborSampler(edge_index, sizes=[1, 1])
     res = sampler.sample(batch=torch.arange(num_nodes))[2]
     two_hop_edges = torch.cat([torch.unsqueeze(res[0].edge_index[0], -1), torch.unsqueeze(res[1].edge_index[0], -1)], dim=-1)
-    two_hop_edges = two_hop_edges[two_hop_edges[:, 0] != two_hop_edges[:, 1]]
+    two_hop_edges = two_hop_edges[two_hop_edges[:, 0] != two_hop_edges[:, 1]].to(device)
     return two_hop_edges
 
-def sample_two_hop_edge_dropout(edge_index: Tensor, num_nodes: int, p: float = 0.5,
+def two_hop_edge_dropout(edge_index: Tensor, two_hop_edges: Tensor, num_nodes: int, p: float = 0.5,
                  force_undirected: bool = False,
                  training: bool = True) -> Tuple[Tensor, Tensor]:
     if p < 0. or p > 1.:
@@ -32,9 +32,11 @@ def sample_two_hop_edge_dropout(edge_index: Tensor, num_nodes: int, p: float = 0
         edge_mask = edge_index.new_ones(edge_index.size(1), dtype=torch.bool)
         return edge_index, edge_mask
     
-    two_hop_edges = sample_two_hop_edges(edge_index, num_nodes).to(device)
-    edge_index = torch.cat([edge_index, two_hop_edges.T], dim=-1)
-
+    if two_hop_edges == None:
+        sample = sample_two_hop_edges(edge_index, num_nodes).T
+    else:
+        sample = two_hop_edges[:, torch.randperm(two_hop_edges.size(1))[:edge_index.size(1) // 5]]
+    edge_index = torch.cat([edge_index, sample], dim=-1)
 
     row, col = edge_index
 
@@ -52,7 +54,8 @@ def sample_two_hop_edge_dropout(edge_index: Tensor, num_nodes: int, p: float = 0
     return edge_index, edge_mask
 
 
-def sample_two_hop_centrality_weighted(edge_index: Tensor,
+def two_hop_centrality_weighted(edge_index: Tensor,
+                 two_hop_edges: Tensor,
                  num_nodes: int,
                  centrality: Tensor,
                  p: float = 0.5,
@@ -63,10 +66,13 @@ def sample_two_hop_centrality_weighted(edge_index: Tensor,
         edge_mask = edge_index.new_ones(edge_index.size(1), dtype=torch.bool)
         return edge_index, edge_mask
     
-    two_hop_edges = sample_two_hop_edges(edge_index, num_nodes).to(device)
 
-    edge_index = torch.cat([edge_index, two_hop_edges.T], dim=-1)
-
+    if two_hop_edges == None:
+        sample = sample_two_hop_edges(edge_index, num_nodes).T
+    else:
+        sample = two_hop_edges[:, torch.randperm(two_hop_edges.size(1))[:edge_index.size(1) // 5]]
+    edge_index = torch.cat([edge_index, sample], dim=-1)
+    
     row, col = edge_index
 
     score = (centrality[row] + centrality[col] / 2) + 1

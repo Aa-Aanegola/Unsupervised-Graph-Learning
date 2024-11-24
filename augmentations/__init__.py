@@ -1,5 +1,6 @@
-from .edge_add import two_hop_edge_dropout, two_hop_centrality_weighted
+# from .edge_add import sample_two_hop_edge_dropout, sample_two_hop_centrality_weighted
 from .weighted_edge_drop import centrality_weighted
+from .two_hop import two_hop_edge_dropout, two_hop_centrality_weighted
 
 # This file makes the directory a Python module
 

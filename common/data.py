@@ -7,8 +7,7 @@ from torch_geometric.transforms import NormalizeFeatures
 from torch_geometric.utils import to_undirected
 import pickle as pkl
 
-
-def get_dataset(root, name, centrality_path, transform=NormalizeFeatures()):
+def get_dataset(root, name, centrality_path, sample_two_hop, transform=NormalizeFeatures()):
     pyg_dataset_dict = {
         'coauthor-cs': (datasets.Coauthor, 'CS'),
         'coauthor-physics': (datasets.Coauthor, 'physics'),
@@ -31,6 +30,9 @@ def get_dataset(root, name, centrality_path, transform=NormalizeFeatures()):
     
     with open(f'{root}/{name}/group.pkl', 'rb') as f:
         data.group = pkl.load(f)
+
+    if not sample_two_hop:
+        data.two_hop_edges = torch.load(f'{root}/{name}/two_hop_edges.pt')
 
     return [data]
 

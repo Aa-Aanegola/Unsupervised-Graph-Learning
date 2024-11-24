@@ -80,8 +80,9 @@ class DropEdgesExtended:
     def __call__(self, data):
         edge_index = data.edge_index
         edge_attr = data.edge_attr if 'edge_attr' in data else None
+        two_hop_edges = data.two_hop_edges if 'two_hop_edges' in data else None
 
-        edge_index, edge_attr = two_hop_edge_dropout(edge_index, data.num_nodes, p=self.p, force_undirected=self.force_undirected)
+        edge_index, edge_attr = two_hop_edge_dropout(edge_index, two_hop_edges, data.num_nodes, p=self.p, force_undirected=self.force_undirected)
 
         data.edge_index = edge_index
         if edge_attr is not None:
@@ -99,8 +100,9 @@ class DropEdgesWeightedExtended:
     def __call__(self, data):
         edge_index = data.edge_index
         edge_attr = data.edge_attr if 'edge_attr' in data else None
+        two_hop_edges = data.two_hop_edges if 'two_hop_edges' in data else None
 
-        edge_index, edge_attr = two_hop_centrality_weighted(edge_index, data.num_nodes, data.centrality, p=self.p, force_undirected=self.force_undirected)
+        edge_index, edge_attr = two_hop_centrality_weighted(edge_index, two_hop_edges, data.num_nodes, data.centrality, p=self.p, force_undirected=self.force_undirected)
 
         data.edge_index = edge_index
         if edge_attr is not None:
