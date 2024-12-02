@@ -55,6 +55,7 @@ flags.DEFINE_float('drop_feat_p_1', 0., 'Probability of node feature dropout 1.'
 flags.DEFINE_float('drop_edge_p_2', 0., 'Probability of edge dropout 2.')
 flags.DEFINE_float('drop_feat_p_2', 0., 'Probability of node feature dropout 2.')
 flags.DEFINE_string('transform_type', 'drop_edge', 'Type of transformation to apply to the graph.')
+flags.DEFINE_bool('sample_two_hop', False, 'Sample two-hop neighbors in the transformation.')
 
 # Evaluation
 flags.DEFINE_integer('eval_epochs', 100, 'Evaluate every eval_epochs.')
@@ -76,8 +77,10 @@ def main(argv):
     logger.info(str(params))
 
     wandb.init(project='Unsup-GNN', config=FLAGS.flag_values_dict())
-    wandb.run.name = datetime.datetime.now().strftime("%Y%m%d") + ' ' + FLAGS.dataset + ' ' + FLAGS.transform_type + ' ' + FLAGS.centrality_path.split('_')[0] + ' GRACE'
-    
+    wandb.run.name = datetime.datetime.now().strftime("%Y%m%d") + ' ' + FLAGS.dataset \
+        + ' ' + FLAGS.transform_type+'_diff' + (' all' if not FLAGS.sample_two_hop and 'extended' in FLAGS.transform_type else '') \
+        + ' ' + FLAGS.centrality_path.split('_')[0] + ' GRACE'
+
     # wandb class accuracy table
     columns = ["Epoch"]
     for cls in range(FLAGS.num_classes):
@@ -93,7 +96,7 @@ def main(argv):
         set_random_seeds(random_seed=FLAGS.model_seed)
 
 
-    dataset = get_dataset(FLAGS.dataset_dir, FLAGS.dataset, FLAGS.centrality_path)
+    dataset = get_dataset(FLAGS.dataset_dir, FLAGS.dataset, FLAGS.centrality_path, FLAGS.sample_two_hop)
     num_eval_splits = FLAGS.num_eval_splits
 
     data = dataset[0]  # all dataset include one graph

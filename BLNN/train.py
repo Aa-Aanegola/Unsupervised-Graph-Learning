@@ -83,7 +83,7 @@ def main(argv):
 
     wandb.init(project='Unsup-GNN', config=FLAGS.flag_values_dict())
     wandb.run.name = datetime.datetime.now().strftime("%Y%m%d") + ' ' + FLAGS.dataset \
-        + ' ' + FLAGS.transform_type + (' all' if not FLAGS.sample_two_hop and 'extended' in FLAGS.transform_type else '') \
+        + ' ' + FLAGS.transform_type+'_diff' + (' all' if not FLAGS.sample_two_hop and 'extended' in FLAGS.transform_type else '') \
         + ' ' + FLAGS.centrality_path.split('_')[0] + ' BGRL'
     
     # wandb class accuracy table

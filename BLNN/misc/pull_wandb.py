@@ -8,7 +8,7 @@ def pull_data():
     PROJECT = "Unsup-GNN"  # replace with your wandb project name
 
     # Define date range for filtering
-    START_DATE = "2024-11-13"  # format: "YYYY-MM-DDTHH:MM:SSZ"
+    START_DATE = "2024-11-23"  # format: "YYYY-MM-DDTHH:MM:SSZ"
     # Initialize WandB API
     api = wandb.Api()
 

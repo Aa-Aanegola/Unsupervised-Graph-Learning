@@ -2,10 +2,10 @@
 
 # Array of job names (dataset names) and configurations
 declare -A jobs=(
-    ["cora"]="cora"
-    # ["citeseer"]="citeseer"
-    # ["photos"]="amazon-photos"
-    # ["computers"]="amazon-computers"
+    # ["cora"]="cora"
+    ["citeseer"]="citeseer"
+    ["photos"]="amazon-photos"
+    ["computers"]="amazon-computers"
 )
 
 # Array of centrality types
@@ -30,7 +30,15 @@ for job in "${!jobs[@]}"; do
         done
 
         for i in {1..10}; do
-            python3 train.py --flagfile=/home/aa-aanegola/Unsupervised-Graph-Learning/GRACE/config/$dataset.cfg --transform_type=drop_edge_extended --centrality_path=$centrality_path
+            python3 train.py --flagfile=/home/aa-aanegola/Unsupervised-Graph-Learning/GRACE/config/$dataset.cfg --transform_type=drop_edge_extended --centrality_path=$centrality_path --sample_two_hop True
+        done
+
+        for i in {1..10}; do
+            python3 train.py --flagfile=/home/aa-aanegola/Unsupervised-Graph-Learning/GRACE/config/$dataset.cfg --transform_type=drop_edge_weighted_extended --centrality_path=$centrality_path --sample_two_hop True
+        done
+
+        for i in {1..10}; do
+            python3 train.py --flagfile=/home/aa-aanegola/Unsupervised-Graph-Learning/GRACE/config/$dataset.cfg --transform_type=drop_edge_extended --centrality_path=$centrality_path 
         done
 
         for i in {1..10}; do

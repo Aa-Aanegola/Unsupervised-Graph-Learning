@@ -75,7 +75,8 @@ def two_hop_centrality_weighted(edge_index: Tensor,
     
     row, col = edge_index
 
-    score = (centrality[row] + centrality[col] / 2) + 1
+    # score = (centrality[row] + centrality[col] / 2) + 1
+    score = 1 + 1 / (1+abs(centrality[row] - centrality[col]))
     score = score / torch.sum(score)
     idx = torch.multinomial(score, int(score.size(0) * p), replacement=False)
     edge_mask = torch.ones_like(score, dtype=torch.bool)
