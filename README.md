@@ -1,15 +1,7 @@
-# Bootstrap Latents of Nodes and Neighbors for Graph Self-Supervised Learning
-
-Official Implementation of [Bootstrap Latents of Nodes and Neighbors for Graph Self-Supervised Learning (ECML-PKDD 2024)](https://cloudy1225.github.io/papers/ECMLPKDD24-BLNN.pdf).
-
-
+# Centrality Aware Augmentations for Self-Supervised Graph Learning
 
 ## Abstract
-
-![Overview of BLNN](Overview.png)
-
-**Figure 1: Overview of our proposed BLNN method.** Given a graph, we first generate two different views using augmentations $t^1,t^2$. From these, we use encoders $f_{\theta}, f_\phi$ to form online and target node representations $\boldsymbol{H}^1, \boldsymbol{H}^2$. They are then fed into the attention module to compute the supportiveness $w_j$ of the neighbor $v_j$ w.r.t. the anchor node $v_i$. The predictor $p_\theta$ uses $\boldsymbol{H}^1$ to form a prediction $\boldsymbol{Z}^1$ of the target $\boldsymbol{H}^2$. The final objective is computed as a combination of the alignment of node-itself pairs and the supportiveness-weighted alignment of node-neighbor pairs. Note that the alignment is achieved by maximizing the cosine similarity between corresponding rows of $\boldsymbol{Z}^1$ and $\boldsymbol{H}^2$, flowing gradients only through $\boldsymbol{Z}^1$. The target parameters $\phi$ are updated as an exponentially moving average of $\theta$.
-
+Self-supervised learning on graphs has gained signif- icant traction due to its ability to learn meaningful node represen- tations without labeled data. A critical component of these meth- ods is data augmentation. Existing approaches predominantly rely on uniform edge dropout, ignoring important structural and contextual variations. We propose centrality-aware edge dropout and adaptive edge addition techniques to enhance graph augmentations for self-supervised learning on graphs. Our meth- ods leverage node centrality metrics to dynamically adjust edge dropout probabilities and add edges, improving representation learning, particularly for underrepresented low-centrality nodes. We validate our techniques on two state-of-the-art frameworks, BGRL and GRACE, across diverse datasets, evaluating per- formance on node classification, node similarity search, and group fairness. Results demonstrate consistent improvements, with eigen-centrality and two-hop sampling emerging as key contributors to the success of our augmentations in addition to accounting for node centrality. This study underscores the importance of structure-aware strategies in advancing graph self- supervised learning and offers a scalable pathway for improving fairness and representation quality with minimal effort.
 
 
 ## Dependencies
@@ -37,22 +29,4 @@ python train.py --flagfile=config/amazon-computers.cfg --tau=1.0
 
 
 ## Acknowledgements
-
-The code is implemented based on [bgrl](https://github.com/nerdslab/bgrl).
-
-
-
-## Citation
-
-If you find the code useful for your research, please consider citing our work:
-
-```
-@inproceedings{liu2024bootstrap,
-  title={Bootstrap Latents of Nodes and Neighbors for Graph Self-Supervised Learning},
-  author={Liu, Yunhui and Zhang, Huaisong and He, Tieke and Zheng, Tao and Zhao, Jianhua},
-  booktitle={Joint European Conference on Machine Learning and Knowledge Discovery in Databases},
-  year={2024},
-  organization={Springer}
-}
-```
-
+The code is implemented based on [bgrl](https://github.com/nerdslab/bgrl) and [grace](https://github.com/CRIPAC-DIG/GRACE).
